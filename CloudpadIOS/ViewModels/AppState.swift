@@ -1,5 +1,6 @@
 import Combine
 import SwiftUI
+import UIKit
 
 @MainActor
 final class AppState: ObservableObject {
@@ -40,6 +41,39 @@ final class AppState: ObservableObject {
     func updateUser(_ user: User) {
         self.user = user
         persist(user)
+        updateAppIcon()
+    }
+
+    /// Refresh user + theme from the server (called on foreground, login, etc.)
+    func syncFromServer() async {
+        guard let token else { return }
+        if let fresh = try? await APIService.shared.fetchMe(token: token) {
+            updateUser(fresh)
+        }
+    }
+
+    // MARK: – Adaptive app icon
+
+    /// Switches the home-screen icon to match the current theme colour.
+    /// Maps preset hex values to pre-registered alternate icon names.
+    func updateAppIcon() {
+        let iconName = iconNameForTheme(resolvedAccentHex)
+        guard UIApplication.shared.supportsAlternateIcons else { return }
+        let current = UIApplication.shared.alternateIconName
+        guard current != iconName else { return }
+        UIApplication.shared.setAlternateIconName(iconName) { _ in }
+    }
+
+    private func iconNameForTheme(_ hex: String) -> String? {
+        switch hex.lowercased() {
+        case "#c0607a": return "cloudpad-rose"
+        case "#4a7fb0": return "cloudpad-sky"
+        case "#3a9e78": return "cloudpad-mint"
+        case "#b08820": return "cloudpad-gold"
+        case "#e05a20": return "cloudpad-orange"
+        case "#1a1714": return "cloudpad-ink"
+        default:        return "cloudpad-purple" // covers #7c5cbf, #9361ff, unknown
+        }
     }
 
     func logout() {
