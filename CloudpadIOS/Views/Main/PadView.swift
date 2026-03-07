@@ -23,7 +23,8 @@ struct PadContentView: View {
             } else {
                 List {
                     // Section header (LISTS mode only – date header is in DaysSubHeader)
-                    if mode == .lists, let padLabel = Config.specialPads.first(where: { $0.key == padKey })?.label {
+                    let allPads = Config.specialPads + Config.extendedPads
+                    if mode == .lists, let padLabel = allPads.first(where: { $0.key == padKey })?.label {
                         Text(padLabel.uppercased())
                             .font(.inter(14, weight: .bold))
                             .foregroundColor(Color(hex: "#1a1714"))

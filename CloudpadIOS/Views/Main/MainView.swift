@@ -389,8 +389,9 @@ struct PadsGridSheet: View {
             .padding(.top, 20)
             .padding(.bottom, 24)
 
-            LazyVGrid(columns: columns, spacing: 20) {
-                ForEach(Config.specialPads, id: \.key) { pad in
+            // 3-column grid of the extended pads
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 16), count: 3), spacing: 20) {
+                ForEach(Config.extendedPads, id: \.key) { pad in
                     let isSelected = selectedPadKey == pad.key && mode == .lists
                     PadGridCell(pad: pad, isSelected: isSelected) {
                         selectedPadKey = pad.key
@@ -405,7 +406,7 @@ struct PadsGridSheet: View {
             Spacer()
         }
         .background(Color.white)
-        .presentationDetents([.medium])
+        .presentationDetents([.height(280)])
         .presentationDragIndicator(.hidden)
     }
 }
