@@ -1,118 +1,83 @@
 import SwiftUI
 
-struct PadView: View {
+// MARK: – Pad content view (no navigation chrome – embedded directly in MainView)
+
+struct PadContentView: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var notesVM: NotesViewModel
     let padKey: String
+    let mode: AppMode
 
-    @State private var newTaskText = ""
     @State private var shareURL: String?
     @State private var showShareSheet = false
-    @FocusState private var inputFocused: Bool
 
     var tasks: [Task] { notesVM.tasks(for: padKey) }
     var note: Note? { notesVM.notesByKey[padKey] }
 
     var body: some View {
-        ZStack(alignment: .bottom) {
-            Color(hex: "#f7f4f0").ignoresSafeArea()
+        ZStack {
+            Color.white.ignoresSafeArea()
 
-            VStack(spacing: 0) {
-                if tasks.isEmpty {
-                    EmptyPadView()
-                } else {
-                    List {
-                        ForEach(Array(tasks.enumerated()), id: \.element.id) { idx, task in
-                            if task.isDivider {
-                                DividerRow(text: task.text)
-                                    .listRowBackground(Color.clear)
-                                    .listRowInsets(.init(top: 16, leading: 20, bottom: 4, trailing: 20))
-                                    .listRowSeparator(.hidden)
-                            } else {
-                                TaskRow(task: task) {
-                                    guard let token = appState.token else { return }
-                                    notesVM.toggleTask(padKey: padKey, index: idx, token: token)
-                                }
-                                .swipeActions(edge: .trailing) {
-                                    Button(role: .destructive) {
-                                        guard let token = appState.token else { return }
-                                        notesVM.deleteTask(padKey: padKey, index: idx, token: token)
-                                    } label: {
-                                        Label("Delete", systemImage: "trash")
-                                    }
-                                }
-                                .listRowBackground(Color.white)
-                                .listRowInsets(.init(top: 0, leading: 20, bottom: 0, trailing: 16))
-                                .listRowSeparatorTint(Color(hex: "#f0ece6"))
-                            }
-                        }
-                        .onMove { from, to in
-                            guard let token = appState.token else { return }
-                            notesVM.moveTask(padKey: padKey, from: from, to: to, token: token)
-                        }
-
-                        // Bottom spacer so content isn't hidden behind the input bar
-                        Color.clear
-                            .frame(height: 80)
-                            .listRowBackground(Color.clear)
+            if tasks.isEmpty {
+                EmptyPadView()
+            } else {
+                List {
+                    // Section header (LISTS mode only – date header is in DaysSubHeader)
+                    if mode == .lists, let padLabel = Config.specialPads.first(where: { $0.key == padKey })?.label {
+                        Text(padLabel.uppercased())
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundColor(Color(hex: "#1a1714"))
+                            .listRowBackground(Color.white)
                             .listRowSeparator(.hidden)
+                            .listRowInsets(.init(top: 16, leading: 20, bottom: 4, trailing: 20))
                     }
-                    .listStyle(.plain)
-                    .scrollContentBackground(.hidden)
-                    .environment(\.editMode, .constant(.active))
-                }
-            }
 
-            // Floating add-task bar
-            VStack(spacing: 0) {
-                Rectangle()
-                    .frame(height: 1)
-                    .foregroundColor(Color(hex: "#e8e4de"))
-
-                HStack(spacing: 12) {
-                    Image(systemName: "plus.circle.fill")
-                        .font(.system(size: 22))
-                        .foregroundColor(
-                            inputFocused || !newTaskText.isEmpty
-                                ? appState.accentColor
-                                : Color(hex: "#c4bfb8")
-                        )
-
-                    TextField("Add a task…", text: $newTaskText)
-                        .focused($inputFocused)
-                        .onSubmit { submitNewTask() }
-
-                    if !newTaskText.isEmpty {
-                        Button { submitNewTask() } label: {
-                            Image(systemName: "arrow.up.circle.fill")
-                                .font(.system(size: 26))
-                                .foregroundColor(appState.accentColor)
+                    ForEach(Array(tasks.enumerated()), id: \.element.id) { idx, task in
+                        if task.isDivider {
+                            PadDividerRow(text: task.text)
+                                .listRowBackground(Color.white)
+                                .listRowInsets(.init(top: 12, leading: 20, bottom: 4, trailing: 20))
+                                .listRowSeparator(.hidden)
+                        } else {
+                            PadTaskRow(task: task) {
+                                guard let token = appState.token else { return }
+                                notesVM.toggleTask(padKey: padKey, index: idx, token: token)
+                            }
+                            .swipeActions(edge: .trailing) {
+                                Button(role: .destructive) {
+                                    guard let token = appState.token else { return }
+                                    notesVM.deleteTask(padKey: padKey, index: idx, token: token)
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
+                            }
+                            .swipeActions(edge: .leading) {
+                                Button {
+                                    Task { await toggleShare() }
+                                } label: {
+                                    Label("Share", systemImage: "link")
+                                }
+                                .tint(appState.accentColor)
+                            }
+                            .listRowBackground(Color.white)
+                            .listRowInsets(.init(top: 0, leading: 20, bottom: 0, trailing: 16))
+                            .listRowSeparatorTint(Color(hex: "#f0ece6"))
                         }
                     }
-                }
-                .padding(.horizontal, 20)
-                .padding(.vertical, 14)
-                .padding(.bottom, 4)
-                .background(Color.white)
-            }
-        }
-        .navigationTitle(padTitle)
-        .navigationBarTitleDisplayMode(.large)
-        .toolbar {
-            ToolbarItemGroup(placement: .navigationBarTrailing) {
-                Button {
-                    Task { await toggleShare() }
-                } label: {
-                    Image(systemName: note?.isShared == true ? "link.circle.fill" : "link")
-                        .foregroundColor(
-                            note?.isShared == true
-                                ? appState.accentColor
-                                : Color(hex: "#9a9490")
-                        )
-                }
+                    .onMove { from, to in
+                        guard let token = appState.token else { return }
+                        notesVM.moveTask(padKey: padKey, from: from, to: to, token: token)
+                    }
 
-                EditButton()
-                    .foregroundColor(appState.accentColor)
+                    // Bottom padding so FAB doesn't cover last item
+                    Color.clear
+                        .frame(height: 80)
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
+                }
+                .listStyle(.plain)
+                .scrollContentBackground(.hidden)
+                .environment(\.editMode, .constant(.active))
             }
         }
         .sheet(isPresented: $showShareSheet) {
@@ -123,12 +88,6 @@ struct PadView: View {
         } message: {
             Text(notesVM.errorMessage ?? "")
         }
-    }
-
-    private func submitNewTask() {
-        guard let token = appState.token else { return }
-        notesVM.addTask(padKey: padKey, text: newTaskText, token: token)
-        newTaskText = ""
     }
 
     private func toggleShare() async {
@@ -142,20 +101,6 @@ struct PadView: View {
             }
         }
     }
-
-    private var padTitle: String {
-        if padKey.count == 10, padKey.contains("-") {
-            let fmt = DateFormatter()
-            fmt.dateFormat = "yyyy-MM-dd"
-            if let date = fmt.date(from: padKey) {
-                if Calendar.current.isDateInToday(date) { return "Today" }
-                let out = DateFormatter()
-                out.dateFormat = "EEEE, d MMM"
-                return out.string(from: date)
-            }
-        }
-        return Config.specialPads.first(where: { $0.key == padKey })?.label ?? padKey
-    }
 }
 
 // MARK: – Empty state
@@ -163,32 +108,31 @@ struct PadView: View {
 struct EmptyPadView: View {
     var body: some View {
         VStack(spacing: 10) {
-            Image(systemName: "checkmark.circle")
-                .font(.system(size: 44))
+            Image(systemName: "checkmark.square")
+                .font(.system(size: 40))
                 .foregroundColor(Color(hex: "#e8e4de"))
             Text("No tasks yet")
                 .font(.subheadline)
                 .foregroundColor(Color(hex: "#9a9490"))
-            Text("Type below to add your first task")
+            Text("Tap + to add your first task")
                 .font(.caption)
                 .foregroundColor(Color(hex: "#c4bfb8"))
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(hex: "#f7f4f0"))
     }
 }
 
-// MARK: – Task row
+// MARK: – Task row (square checkbox to match web)
 
-struct TaskRow: View {
+struct PadTaskRow: View {
     let task: Task
     let onToggle: () -> Void
 
     var body: some View {
         HStack(alignment: .top, spacing: 14) {
             Button(action: onToggle) {
-                Image(systemName: task.done ? "checkmark.circle.fill" : "circle")
-                    .font(.system(size: 22))
+                Image(systemName: task.done ? "checkmark.square.fill" : "square.fill")
+                    .font(.system(size: 20))
                     .foregroundColor(task.done ? Color(hex: "#c4bfb8") : Color.accentColor)
             }
             .buttonStyle(.plain)
@@ -204,7 +148,7 @@ struct TaskRow: View {
 
 // MARK: – Divider row
 
-struct DividerRow: View {
+struct PadDividerRow: View {
     let text: String
 
     var body: some View {
