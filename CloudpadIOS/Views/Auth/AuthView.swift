@@ -14,29 +14,33 @@ struct AuthView: View {
             ScrollView {
                 VStack(spacing: 0) {
                     // Logo
-                    VStack(spacing: 6) {
+                    VStack(spacing: 10) {
                         Text("☁️")
-                            .font(.system(size: 52))
-                        Text("cloudpad")
-                            .font(.custom("DM Sans", size: 28))
-                            .fontWeight(.semibold)
-                            .foregroundColor(appState.accentColor)
-                    }
-                    .padding(.top, 72)
-                    .padding(.bottom, 36)
+                            .font(.system(size: 56))
 
-                    // Card
-                    VStack(spacing: 20) {
-                        // Mode toggle
+                        Text("cloudpad")
+                            .font(.system(size: 34, weight: .bold, design: .rounded))
+                            .foregroundColor(appState.accentColor)
+
+                        Text("Your pad, your mood")
+                            .font(.subheadline)
+                            .foregroundColor(Color(hex: "#9a9490"))
+                    }
+                    .padding(.top, 80)
+                    .padding(.bottom, 44)
+
+                    // Auth card
+                    VStack(spacing: 22) {
+                        // Sign in / Sign up toggle
                         HStack(spacing: 0) {
                             modeTab("Sign in", selected: mode == .login) { mode = .login }
                             modeTab("Sign up", selected: mode == .register) { mode = .register }
                         }
                         .background(Color(hex: "#f0ece6"))
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
 
-                        // Fields
-                        VStack(spacing: 14) {
+                        // Input fields
+                        VStack(spacing: 18) {
                             if mode == .register {
                                 CPField(placeholder: "Your name", text: $vm.name)
                             }
@@ -44,15 +48,21 @@ struct AuthView: View {
                             CPField(placeholder: "Password", text: $vm.password, isSecure: true)
                         }
 
-                        // Error
+                        // Error message
                         if let err = vm.errorMessage {
-                            Text(err)
-                                .font(.caption)
-                                .foregroundColor(.red)
-                                .frame(maxWidth: .infinity, alignment: .leading)
+                            HStack(spacing: 8) {
+                                Image(systemName: "exclamationmark.circle.fill")
+                                Text(err)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                            }
+                            .font(.caption)
+                            .foregroundColor(Color(hex: "#c0607a"))
+                            .padding(12)
+                            .background(Color(hex: "#c0607a").opacity(0.08))
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
                         }
 
-                        // Submit
+                        // Submit button
                         Button {
                             Task {
                                 if mode == .login {
@@ -71,18 +81,24 @@ struct AuthView: View {
                                 }
                             }
                             .frame(maxWidth: .infinity)
-                            .padding(.vertical, 14)
+                            .padding(.vertical, 15)
                             .background(appState.accentColor)
                             .foregroundColor(.white)
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
                         }
                         .disabled(vm.isLoading)
                     }
                     .padding(24)
                     .background(Color.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 14))
-                    .shadow(color: .black.opacity(0.06), radius: 16, x: 0, y: 4)
-                    .padding(.horizontal, 24)
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(Color(hex: "#e8e4de"), lineWidth: 1)
+                    )
+                    .shadow(color: Color(hex: "#006cd1").opacity(0.06), radius: 20, x: 0, y: 4)
+                    .padding(.horizontal, 20)
+
+                    Spacer(minLength: 48)
                 }
             }
         }
@@ -98,13 +114,14 @@ struct AuthView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 10)
                 .background(selected ? Color.white : Color.clear)
-                .clipShape(RoundedRectangle(cornerRadius: 7))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
                 .padding(3)
         }
     }
 }
 
-// Reusable underline text field
+// MARK: – Reusable underline field
+
 struct CPField: View {
     let placeholder: String
     @Binding var text: String
@@ -122,7 +139,7 @@ struct CPField: View {
                     .disableAutocorrection(true)
             }
         }
-        .padding(.bottom, 8)
+        .padding(.bottom, 10)
         .overlay(
             Rectangle()
                 .frame(height: 1)
