@@ -25,7 +25,7 @@ struct PadContentView: View {
                     // Section header (LISTS mode only – date header is in DaysSubHeader)
                     if mode == .lists, let padLabel = Config.specialPads.first(where: { $0.key == padKey })?.label {
                         Text(padLabel.uppercased())
-                            .font(.system(size: 14, weight: .bold))
+                            .font(.inter(14, weight: .bold))
                             .foregroundColor(Color(hex: "#1a1714"))
                             .listRowBackground(Color.white)
                             .listRowSeparator(.hidden)
@@ -109,13 +109,13 @@ struct EmptyPadView: View {
     var body: some View {
         VStack(spacing: 10) {
             Image(systemName: "checkmark.square")
-                .font(.system(size: 40))
+                .font(.inter(40))
                 .foregroundColor(Color(hex: "#e8e4de"))
             Text("No tasks yet")
-                .font(.subheadline)
+                .font(.inter(13))
                 .foregroundColor(Color(hex: "#9a9490"))
             Text("Tap + to add your first task")
-                .font(.caption)
+                .font(.inter(11))
                 .foregroundColor(Color(hex: "#c4bfb8"))
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -132,7 +132,7 @@ struct PadTaskRow: View {
         HStack(alignment: .top, spacing: 14) {
             Button(action: onToggle) {
                 Image(systemName: task.done ? "checkmark.square.fill" : "square.fill")
-                    .font(.system(size: 20))
+                    .font(.inter(20))
                     .foregroundColor(task.done ? Color(hex: "#c4bfb8") : Color.accentColor)
             }
             .buttonStyle(.plain)
@@ -155,7 +155,7 @@ struct PadDividerRow: View {
         HStack(spacing: 8) {
             if !text.isEmpty {
                 Text(text.uppercased())
-                    .font(.caption)
+                    .font(.inter(11))
                     .fontWeight(.semibold)
                     .foregroundColor(Color(hex: "#9a9490"))
                     .tracking(0.5)

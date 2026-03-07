@@ -16,14 +16,14 @@ struct AuthView: View {
                     // Logo
                     VStack(spacing: 10) {
                         Text("☁️")
-                            .font(.system(size: 56))
+                            .font(.inter(56))
 
                         Text("cloudpad")
-                            .font(.system(size: 34, weight: .bold, design: .rounded))
+                            .font(.caveat(42, weight: .bold))
                             .foregroundColor(appState.accentColor)
 
                         Text("Your pad, your mood")
-                            .font(.subheadline)
+                            .font(.inter(13))
                             .foregroundColor(Color(hex: "#9a9490"))
                     }
                     .padding(.top, 80)
@@ -55,7 +55,7 @@ struct AuthView: View {
                                 Text(err)
                                     .frame(maxWidth: .infinity, alignment: .leading)
                             }
-                            .font(.caption)
+                            .font(.inter(11))
                             .foregroundColor(Color(hex: "#c0607a"))
                             .padding(12)
                             .background(Color(hex: "#c0607a").opacity(0.08))
@@ -108,7 +108,7 @@ struct AuthView: View {
     private func modeTab(_ label: String, selected: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Text(label)
-                .font(.subheadline)
+                .font(.inter(13))
                 .fontWeight(selected ? .semibold : .regular)
                 .foregroundColor(selected ? appState.accentColor : Color(hex: "#9a9490"))
                 .frame(maxWidth: .infinity)

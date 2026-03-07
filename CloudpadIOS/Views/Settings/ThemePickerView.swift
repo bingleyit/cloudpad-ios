@@ -19,9 +19,9 @@ struct ThemePickerView: View {
                             .frame(width: 44, height: 44)
                         VStack(alignment: .leading, spacing: 2) {
                             Text("Accent colour")
-                                .font(.headline)
+                                .font(.inter(17, weight: .semibold))
                             Text(selectedHex.isEmpty ? (appState.user?.theme ?? "#7c5cbf") : selectedHex)
-                                .font(.caption)
+                                .font(.inter(11))
                                 .foregroundColor(Color(hex: "#9a9490"))
                         }
                         Spacer()
@@ -32,7 +32,7 @@ struct ThemePickerView: View {
 
                     // Preset swatches
                     Text("Presets")
-                        .font(.subheadline)
+                        .font(.inter(13))
                         .fontWeight(.semibold)
                         .foregroundColor(Color(hex: "#9a9490"))
 
@@ -50,7 +50,7 @@ struct ThemePickerView: View {
                                     .onTapGesture { selectedHex = preset.hex }
 
                                 Text(preset.name)
-                                    .font(.caption2)
+                                    .font(.inter(10))
                                     .foregroundColor(Color(hex: "#9a9490"))
                             }
                         }
@@ -58,7 +58,7 @@ struct ThemePickerView: View {
 
                     // Custom hex
                     Text("Custom")
-                        .font(.subheadline)
+                        .font(.inter(13))
                         .fontWeight(.semibold)
                         .foregroundColor(Color(hex: "#9a9490"))
 
@@ -83,7 +83,7 @@ struct ThemePickerView: View {
 
                     if let err = errorMessage {
                         Text(err)
-                            .font(.caption)
+                            .font(.inter(11))
                             .foregroundColor(.red)
                     }
                 }
