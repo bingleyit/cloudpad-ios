@@ -57,7 +57,7 @@ struct MainView: View {
             // Floating + button
             Button { showQuickAdd = true } label: {
                 Image(systemName: "plus")
-                    .font(.system(size: 22, weight: .bold))
+                    .font(.inter(22, weight: .bold))
                     .foregroundColor(.white)
                     .frame(width: 56, height: 56)
                     .background(appState.accentColor)
@@ -113,7 +113,7 @@ struct AppHeader: View {
             // Hamburger → pads sheet
             Button { showPadsSheet = true } label: {
                 Image(systemName: "line.3.horizontal")
-                    .font(.system(size: 18, weight: .medium))
+                    .font(.inter(18, weight: .medium))
                     .foregroundColor(.white)
                     .frame(width: 40, height: 40)
                     .background(Color.white.opacity(0.15))
@@ -124,7 +124,7 @@ struct AppHeader: View {
 
             // "cloudpad" cursive wordmark
             Text("cloudpad")
-                .font(.custom("BradleyHandITCTT-Bold", size: 26))
+                .font(.inter(26, weight: .heavy))
                 .foregroundColor(.white)
 
             Spacer()
@@ -168,7 +168,7 @@ struct UserAvatarView: View {
         ZStack {
             Circle().fill(Color.white.opacity(0.2))
             Text(user?.avatar.isEmpty == false ? user!.avatar : "🌸")
-                .font(.system(size: 20))
+                .font(.inter(20))
         }
     }
 }
@@ -189,10 +189,10 @@ struct DaysSubHeader: View {
 
             VStack(spacing: 2) {
                 Text(dateLabel)
-                    .font(.system(size: 12))
+                    .font(.inter(12))
                     .foregroundColor(Color(hex: "#9a9490"))
                 Text(dayLabel)
-                    .font(.system(size: 17, weight: .bold))
+                    .font(.inter(17, weight: .bold))
                     .foregroundColor(appState.accentColor)
             }
             .onTapGesture { currentDate = Date() } // tap centre → today
@@ -211,7 +211,7 @@ struct DaysSubHeader: View {
     private func navArrow(_ name: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Image(systemName: name)
-                .font(.system(size: 15, weight: .semibold))
+                .font(.inter(15, weight: .semibold))
                 .foregroundColor(Color(hex: "#9a9490"))
                 .frame(width: 36, height: 36)
                 .background(Color.white)
@@ -272,11 +272,11 @@ struct PadTabButton: View {
             VStack(spacing: 0) {
                 HStack(spacing: 4) {
                     Text(label.uppercased())
-                        .font(.system(size: 12, weight: .semibold))
+                        .font(.inter(12, weight: .semibold))
                         .foregroundColor(isSelected ? appState.accentColor : Color(hex: "#9a9490"))
                     if count > 0 {
                         Text("\(count)")
-                            .font(.system(size: 11, weight: .bold))
+                            .font(.inter(11, weight: .bold))
                             .foregroundColor(isSelected ? appState.accentColor : Color(hex: "#9a9490"))
                     }
                 }
@@ -319,9 +319,9 @@ struct BottomModeToggle: View {
         Button(action: action) {
             HStack(spacing: 6) {
                 Image(systemName: icon)
-                    .font(.system(size: 14, weight: .medium))
+                    .font(.inter(14, weight: .medium))
                 Text(label)
-                    .font(.system(size: 13, weight: .semibold))
+                    .font(.inter(13, weight: .semibold))
             }
             .foregroundColor(active ? .white : Color(hex: "#9a9490"))
             .frame(maxWidth: .infinity)
@@ -354,13 +354,13 @@ struct PadsGridSheet: View {
 
             HStack {
                 Text("PADS")
-                    .font(.system(size: 12, weight: .bold))
+                    .font(.inter(12, weight: .bold))
                     .foregroundColor(Color(hex: "#9a9490"))
                     .tracking(1.2)
                 Spacer()
                 Button { isPresented = false } label: {
                     Image(systemName: "xmark")
-                        .font(.system(size: 14, weight: .semibold))
+                        .font(.inter(14, weight: .semibold))
                         .foregroundColor(Color(hex: "#9a9490"))
                         .frame(width: 28, height: 28)
                         .background(Color(hex: "#f0ece6"))
@@ -402,7 +402,7 @@ struct PadGridCell: View {
         Button(action: onTap) {
             VStack(spacing: 8) {
                 Image(systemName: pad.icon)
-                    .font(.system(size: 22, weight: .medium))
+                    .font(.inter(22, weight: .medium))
                     .foregroundColor(isSelected ? .white : Color(hex: "#9a9490"))
                     .frame(width: 62, height: 62)
                     .background(isSelected ? appState.accentColor : Color(hex: "#f7f4f0"))
@@ -416,7 +416,7 @@ struct PadGridCell: View {
                     )
 
                 Text(pad.label.uppercased())
-                    .font(.system(size: 10, weight: .semibold))
+                    .font(.inter(10, weight: .semibold))
                     .foregroundColor(isSelected ? appState.accentColor : Color(hex: "#9a9490"))
                     .tracking(0.5)
             }
@@ -449,13 +449,13 @@ struct QuickAddSheet: View {
                 Text("✦")
                     .foregroundColor(appState.accentColor)
                 Text("QUICK ADD")
-                    .font(.system(size: 12, weight: .bold))
+                    .font(.inter(12, weight: .bold))
                     .foregroundColor(Color(hex: "#9a9490"))
                     .tracking(1.2)
                 Spacer()
                 Button { isPresented = false } label: {
                     Image(systemName: "xmark")
-                        .font(.system(size: 14, weight: .semibold))
+                        .font(.inter(14, weight: .semibold))
                         .foregroundColor(Color(hex: "#9a9490"))
                         .frame(width: 28, height: 28)
                         .background(Color(hex: "#f0ece6"))
@@ -472,7 +472,7 @@ struct QuickAddSheet: View {
                 text: $taskText,
                 axis: .vertical
             )
-            .font(.system(size: 17))
+            .font(.inter(17))
             .foregroundColor(Color(hex: "#1a1714"))
             .focused($focused)
             .padding(.horizontal, 20)
@@ -496,7 +496,7 @@ struct QuickAddSheet: View {
                     isPresented = false
                 } label: {
                     Text("Add Task")
-                        .font(.system(size: 15, weight: .bold))
+                        .font(.inter(15, weight: .bold))
                         .foregroundColor(.white)
                         .padding(.horizontal, 28)
                         .padding(.vertical, 13)

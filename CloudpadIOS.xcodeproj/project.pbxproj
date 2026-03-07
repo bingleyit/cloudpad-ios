@@ -22,6 +22,9 @@
 		E100000000000000A0000033 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E100000000000000A0000023 /* SettingsView.swift */; };
 		E100000000000000A0000034 /* ThemePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E100000000000000A0000024 /* ThemePickerView.swift */; };
 		E100000000000000A0000035 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E100000000000000A0000026 /* Assets.xcassets */; };
+		E100000000000000A0000036 /* InterVariable.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E100000000000000A0000040 /* InterVariable.ttf */; };
+		E100000000000000A0000037 /* InterVariable-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E100000000000000A0000041 /* InterVariable-Italic.ttf */; };
+		E100000000000000A0000038 /* FontHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = E100000000000000A0000042 /* FontHelper.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -42,6 +45,9 @@
 		E100000000000000A0000024 /* ThemePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemePickerView.swift; sourceTree = "<group>"; };
 		E100000000000000A0000025 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E100000000000000A0000026 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		E100000000000000A0000040 /* InterVariable.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = InterVariable.ttf; sourceTree = "<group>"; };
+		E100000000000000A0000041 /* InterVariable-Italic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "InterVariable-Italic.ttf"; sourceTree = "<group>"; };
+		E100000000000000A0000042 /* FontHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FontHelper.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -76,14 +82,25 @@
 			children = (
 				E100000000000000A0000017 /* CloudpadIOSApp.swift */,
 				E100000000000000A0000018 /* Config.swift */,
+				E100000000000000A0000042 /* FontHelper.swift */,
 				E100000000000000A0000010 /* Models */,
 				E100000000000000A0000011 /* Services */,
 				E100000000000000A0000012 /* ViewModels */,
 				E100000000000000A0000013 /* Views */,
+				E100000000000000A0000044 /* Fonts */,
 				E100000000000000A0000025 /* Info.plist */,
 				E100000000000000A0000026 /* Assets.xcassets */,
 			);
 			path = CloudpadIOS;
+			sourceTree = "<group>";
+		};
+		E100000000000000A0000044 /* Fonts */ = {
+			isa = PBXGroup;
+			children = (
+				E100000000000000A0000040 /* InterVariable.ttf */,
+				E100000000000000A0000041 /* InterVariable-Italic.ttf */,
+			);
+			path = "Resources/Fonts";
 			sourceTree = "<group>";
 		};
 		E100000000000000A0000010 /* Models */ = {
@@ -209,6 +226,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				E100000000000000A0000035 /* Assets.xcassets in Resources */,
+				E100000000000000A0000036 /* InterVariable.ttf in Resources */,
+				E100000000000000A0000037 /* InterVariable-Italic.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -233,6 +252,7 @@
 				E100000000000000A0000032 /* PadView.swift in Sources */,
 				E100000000000000A0000033 /* SettingsView.swift in Sources */,
 				E100000000000000A0000034 /* ThemePickerView.swift in Sources */,
+				E100000000000000A0000038 /* FontHelper.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
