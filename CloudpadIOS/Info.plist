@@ -29,7 +29,56 @@
 	<array>
 		<string>InterVariable.ttf</string>
 		<string>InterVariable-Italic.ttf</string>
+		<string>CaveatBold.ttf</string>
 	</array>
+	<key>CFBundleIcons</key>
+	<dict>
+		<key>CFBundleAlternateIcons</key>
+		<dict>
+			<key>cloudpad-purple</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array><string>AppIcon-purple</string></array>
+				<key>UIPrerenderedIcon</key><false/>
+			</dict>
+			<key>cloudpad-rose</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array><string>AppIcon-rose</string></array>
+				<key>UIPrerenderedIcon</key><false/>
+			</dict>
+			<key>cloudpad-sky</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array><string>AppIcon-sky</string></array>
+				<key>UIPrerenderedIcon</key><false/>
+			</dict>
+			<key>cloudpad-mint</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array><string>AppIcon-mint</string></array>
+				<key>UIPrerenderedIcon</key><false/>
+			</dict>
+			<key>cloudpad-gold</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array><string>AppIcon-gold</string></array>
+				<key>UIPrerenderedIcon</key><false/>
+			</dict>
+			<key>cloudpad-orange</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array><string>AppIcon-orange</string></array>
+				<key>UIPrerenderedIcon</key><false/>
+			</dict>
+			<key>cloudpad-ink</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array><string>AppIcon-ink</string></array>
+				<key>UIPrerenderedIcon</key><false/>
+			</dict>
+		</dict>
+	</dict>
 	<key>UILaunchScreen</key>
 	<dict/>
 	<key>UISupportedInterfaceOrientations</key>

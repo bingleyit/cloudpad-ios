@@ -19,7 +19,7 @@ struct AuthView: View {
                             .font(.inter(56))
 
                         Text("cloudpad")
-                            .font(.inter(34, weight: .bold))
+                            .font(.caveat(42, weight: .bold))
                             .foregroundColor(appState.accentColor)
 
                         Text("Your pad, your mood")

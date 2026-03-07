@@ -9,6 +9,7 @@ enum AppMode { case days, lists }
 struct MainView: View {
     @EnvironmentObject var appState: AppState
     @StateObject private var notesVM = NotesViewModel()
+    @Environment(\.scenePhase) private var scenePhase
 
     @State private var mode: AppMode = .lists
     @State private var selectedPadKey: String = Config.specialPads.first?.key ?? "personal"
@@ -26,11 +27,9 @@ struct MainView: View {
             Color.white.ignoresSafeArea()
 
             VStack(spacing: 0) {
-                // Blue header
                 AppHeader(showPadsSheet: $showPadsSheet, showSettings: $showSettings)
                     .environmentObject(appState)
 
-                // Mode-specific sub-header
                 if mode == .days {
                     DaysSubHeader(currentDate: $currentDate)
                         .environmentObject(appState)
@@ -42,14 +41,36 @@ struct MainView: View {
 
                 Divider().foregroundColor(Color(hex: "#e8e4de"))
 
-                // Task content
                 PadContentView(padKey: activePadKey, mode: mode)
                     .environmentObject(appState)
                     .environmentObject(notesVM)
                     .id(activePadKey)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    // ── Swipe left/right to navigate ──────────────────
+                    .gesture(
+                        DragGesture(minimumDistance: 40, coordinateSpace: .local)
+                            .onEnded { value in
+                                let dx = value.translation.width
+                                let dy = value.translation.height
+                                guard abs(dx) > abs(dy) else { return }
+                                withAnimation(.easeInOut(duration: 0.22)) {
+                                    if mode == .days {
+                                        let delta = dx < 0 ? 1 : -1
+                                        currentDate = Calendar.current.date(
+                                            byAdding: .day, value: delta, to: currentDate)!
+                                    } else {
+                                        let pads = Config.specialPads
+                                        if let idx = pads.firstIndex(where: { $0.key == selectedPadKey }) {
+                                            let next = dx < 0 ? idx + 1 : idx - 1
+                                            if pads.indices.contains(next) {
+                                                selectedPadKey = pads[next].key
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                    )
 
-                // Bottom DAYS / LISTS toggle
                 BottomModeToggle(mode: $mode)
                     .environmentObject(appState)
             }
@@ -65,16 +86,12 @@ struct MainView: View {
                     .shadow(color: appState.accentColor.opacity(0.35), radius: 8, x: 0, y: 3)
             }
             .padding(.trailing, 20)
-            .padding(.bottom, 76) // sits above the bottom toggle bar
+            .padding(.bottom, 76)
         }
         .sheet(isPresented: $showPadsSheet) {
-            PadsGridSheet(
-                selectedPadKey: $selectedPadKey,
-                mode: $mode,
-                isPresented: $showPadsSheet
-            )
-            .environmentObject(appState)
-            .environmentObject(notesVM)
+            PadsGridSheet(selectedPadKey: $selectedPadKey, mode: $mode, isPresented: $showPadsSheet)
+                .environmentObject(appState)
+                .environmentObject(notesVM)
         }
         .sheet(isPresented: $showQuickAdd) {
             QuickAddSheet(padKey: activePadKey, isPresented: $showQuickAdd)
@@ -82,16 +99,17 @@ struct MainView: View {
                 .environmentObject(notesVM)
         }
         .sheet(isPresented: $showSettings) {
-            NavigationStack {
-                SettingsContent().environmentObject(appState)
-            }
+            NavigationStack { SettingsContent().environmentObject(appState) }
         }
         .task {
+            await appState.syncFromServer()
             guard let token = appState.token else { return }
-            if let freshUser = try? await APIService.shared.fetchMe(token: token) {
-                appState.updateUser(freshUser)
-            }
             await notesVM.loadAll(token: token)
+        }
+        // Re-sync theme + tasks whenever the app comes back to the foreground
+        .onChange(of: scenePhase) { phase in
+            guard phase == .active else { return }
+            Task { await appState.syncFromServer() }
         }
     }
 
@@ -122,9 +140,9 @@ struct AppHeader: View {
 
             Spacer()
 
-            // "cloudpad" cursive wordmark
+            // "cloudpad" cursive wordmark — Caveat matches the web app's branding
             Text("cloudpad")
-                .font(.inter(26, weight: .heavy))
+                .font(.caveat(30, weight: .bold))
                 .foregroundColor(.white)
 
             Spacer()
@@ -426,6 +444,25 @@ struct PadGridCell: View {
 
 // MARK: – Quick add bottom sheet
 
+enum QuickAddType: String, CaseIterable {
+    case task, snap, meal, reminder, event, note, link, section
+
+    var emoji: String {
+        switch self {
+        case .task:     return ""
+        case .snap:     return "⚡"
+        case .meal:     return "🥙"
+        case .reminder: return "⏰"
+        case .event:    return "📅"
+        case .note:     return "📝"
+        case .link:     return "🔗"
+        case .section:  return "§"
+        }
+    }
+
+    var label: String { rawValue }
+}
+
 struct QuickAddSheet: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var notesVM: NotesViewModel
@@ -433,7 +470,13 @@ struct QuickAddSheet: View {
     @Binding var isPresented: Bool
 
     @State private var taskText = ""
+    @State private var selectedType: QuickAddType = .task
+    @State private var selectedDate: Date = Date()
     @FocusState private var focused: Bool
+
+    // Chips are split into two rows matching the web layout
+    private let row1: [QuickAddType] = [.task, .snap, .meal, .reminder, .event]
+    private let row2: [QuickAddType] = [.note, .link, .section]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -444,9 +487,10 @@ struct QuickAddSheet: View {
                 .frame(maxWidth: .infinity)
                 .padding(.top, 12)
 
-            // Header
-            HStack {
+            // ── Header ──────────────────────────────────────────────
+            HStack(spacing: 6) {
                 Text("✦")
+                    .font(.inter(13))
                     .foregroundColor(appState.accentColor)
                 Text("QUICK ADD")
                     .font(.inter(12, weight: .bold))
@@ -454,41 +498,76 @@ struct QuickAddSheet: View {
                     .tracking(1.2)
                 Spacer()
                 Button { isPresented = false } label: {
-                    Image(systemName: "xmark")
-                        .font(.inter(14, weight: .semibold))
+                    Text("×")
+                        .font(.inter(22, weight: .light))
                         .foregroundColor(Color(hex: "#9a9490"))
                         .frame(width: 28, height: 28)
-                        .background(Color(hex: "#f0ece6"))
-                        .clipShape(Circle())
                 }
             }
             .padding(.horizontal, 20)
             .padding(.top, 20)
-            .padding(.bottom, 20)
+            .padding(.bottom, 14)
 
-            // Text input
-            TextField(
-                "What needs to get done?",
-                text: $taskText,
-                axis: .vertical
-            )
-            .font(.inter(17))
-            .foregroundColor(Color(hex: "#1a1714"))
-            .focused($focused)
-            .padding(.horizontal, 20)
-            .padding(.bottom, 12)
+            // ── Text input with accent underline ─────────────────────
+            ZStack(alignment: .topLeading) {
+                if taskText.isEmpty {
+                    Text("What needs to get done? (try 'buy milk tomorrow' or\n'meeting next friday')")
+                        .font(.inter(17))
+                        .foregroundColor(Color(hex: "#c4bfb8"))
+                        .padding(.horizontal, 20)
+                        .padding(.top, 2)
+                        .allowsHitTesting(false)
+                }
+                TextField("", text: $taskText, axis: .vertical)
+                    .font(.inter(17))
+                    .foregroundColor(Color(hex: "#1a1714"))
+                    .focused($focused)
+                    .padding(.horizontal, 20)
+                    .frame(minHeight: 52, alignment: .top)
+            }
 
-            // Accent underline
             Rectangle()
                 .frame(height: 1.5)
                 .foregroundColor(appState.accentColor)
                 .padding(.horizontal, 20)
 
-            Spacer().frame(height: 28)
+            Spacer().frame(height: 20)
 
-            // Add button row
-            HStack {
-                Spacer()
+            // ── Type chips — row 1 ───────────────────────────────────
+            chipRow(row1)
+            Spacer().frame(height: 10)
+            chipRow(row2)
+
+            Spacer().frame(height: 18)
+
+            // ── Date picker + Add Task button ────────────────────────
+            HStack(spacing: 10) {
+                // Date dropdown styled like the web's <select>
+                Menu {
+                    ForEach(dateOptions(), id: \.date) { opt in
+                        Button(opt.label) { selectedDate = opt.date }
+                    }
+                } label: {
+                    HStack(spacing: 6) {
+                        Text(dateMenuLabel(selectedDate))
+                            .font(.inter(14))
+                            .foregroundColor(Color(hex: "#1a1714"))
+                        Spacer()
+                        Image(systemName: "chevron.up.chevron.down")
+                            .font(.inter(11))
+                            .foregroundColor(Color(hex: "#9a9490"))
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 11)
+                    .background(Color.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color(hex: "#e8e4de"), lineWidth: 1)
+                    )
+                }
+                .frame(maxWidth: .infinity)
+
                 Button {
                     let trimmed = taskText.trimmingCharacters(in: .whitespaces)
                     guard let token = appState.token, !trimmed.isEmpty else { return }
@@ -498,8 +577,8 @@ struct QuickAddSheet: View {
                     Text("Add Task")
                         .font(.inter(15, weight: .bold))
                         .foregroundColor(.white)
-                        .padding(.horizontal, 28)
-                        .padding(.vertical, 13)
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 12)
                         .background(appState.accentColor)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
@@ -507,10 +586,75 @@ struct QuickAddSheet: View {
             }
             .padding(.horizontal, 20)
 
+            // ── Tip text ─────────────────────────────────────────────
+            Text("tip: type \"tomorrow\", \"next monday\", or a date to auto-schedule")
+                .font(.inter(11))
+                .foregroundColor(Color(hex: "#9a9490"))
+                .padding(.horizontal, 20)
+                .padding(.top, 8)
+
             Spacer()
         }
         .background(Color.white)
-        .presentationDetents([.medium, .large])
+        .presentationDetents([.height(420), .large])
         .onAppear { focused = true }
+    }
+
+    // MARK: – Chip row helper
+
+    private func chipRow(_ types: [QuickAddType]) -> some View {
+        HStack(spacing: 8) {
+            ForEach(types, id: \.rawValue) { type in
+                let selected = selectedType == type
+                Button { selectedType = type } label: {
+                    HStack(spacing: type.emoji.isEmpty ? 0 : 4) {
+                        if !type.emoji.isEmpty {
+                            Text(type.emoji).font(.inter(13))
+                        }
+                        Text(type.label)
+                            .font(.inter(13, weight: selected ? .semibold : .regular))
+                    }
+                    .foregroundColor(selected ? .white : Color(hex: "#1a1714"))
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 7)
+                    .background(selected ? appState.accentColor : Color.white)
+                    .clipShape(Capsule())
+                    .overlay(
+                        Capsule().stroke(
+                            selected ? appState.accentColor : Color(hex: "#e8e4de"),
+                            lineWidth: 1
+                        )
+                    )
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(.horizontal, 20)
+    }
+
+    // MARK: – Date helpers
+
+    private struct DateOption: Hashable { let date: Date; let label: String }
+
+    private func dateOptions() -> [DateOption] {
+        let cal = Calendar.current
+        let today = cal.startOfDay(for: Date())
+        var opts: [DateOption] = []
+        let fmt = DateFormatter(); fmt.dateFormat = "EEEE"
+        for d in 0..<8 {
+            let date = cal.date(byAdding: .day, value: d, to: today)!
+            let dayName = fmt.string(from: date)
+            let prefix = d == 0 ? "Today" : d == 1 ? "Tomorrow" : dayName
+            opts.append(DateOption(date: date, label: prefix))
+        }
+        return opts
+    }
+
+    private func dateMenuLabel(_ date: Date) -> String {
+        let cal = Calendar.current
+        let fmt = DateFormatter(); fmt.dateFormat = "EEEE"
+        if cal.isDateInToday(date)    { return "Today · \(fmt.string(from: date))" }
+        if cal.isDateInTomorrow(date) { return "Tomorrow · \(fmt.string(from: date))" }
+        return fmt.string(from: date)
     }
 }

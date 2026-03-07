@@ -25,6 +25,21 @@
 		E100000000000000A0000036 /* InterVariable.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E100000000000000A0000040 /* InterVariable.ttf */; };
 		E100000000000000A0000037 /* InterVariable-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E100000000000000A0000041 /* InterVariable-Italic.ttf */; };
 		E100000000000000A0000038 /* FontHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = E100000000000000A0000042 /* FontHelper.swift */; };
+		E100000000000000A0000050 /* CaveatBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E100000000000000A0000060 /* CaveatBold.ttf */; };
+		E100000000000000A0000051 /* AppIcon-purple@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = E100000000000000A0000061 /* AppIcon-purple@2x.png */; };
+		E100000000000000A0000052 /* AppIcon-purple@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = E100000000000000A0000062 /* AppIcon-purple@3x.png */; };
+		E100000000000000A0000053 /* AppIcon-rose@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = E100000000000000A0000063 /* AppIcon-rose@2x.png */; };
+		E100000000000000A0000054 /* AppIcon-rose@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = E100000000000000A0000064 /* AppIcon-rose@3x.png */; };
+		E100000000000000A0000055 /* AppIcon-sky@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = E100000000000000A0000065 /* AppIcon-sky@2x.png */; };
+		E100000000000000A0000056 /* AppIcon-sky@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = E100000000000000A0000066 /* AppIcon-sky@3x.png */; };
+		E100000000000000A0000057 /* AppIcon-mint@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = E100000000000000A0000067 /* AppIcon-mint@2x.png */; };
+		E100000000000000A0000058 /* AppIcon-mint@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = E100000000000000A0000068 /* AppIcon-mint@3x.png */; };
+		E100000000000000A0000059 /* AppIcon-gold@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = E100000000000000A0000069 /* AppIcon-gold@2x.png */; };
+		E100000000000000A000005A /* AppIcon-gold@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = E100000000000000A000006A /* AppIcon-gold@3x.png */; };
+		E100000000000000A000005B /* AppIcon-orange@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = E100000000000000A000006B /* AppIcon-orange@2x.png */; };
+		E100000000000000A000005C /* AppIcon-orange@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = E100000000000000A000006C /* AppIcon-orange@3x.png */; };
+		E100000000000000A000005D /* AppIcon-ink@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = E100000000000000A000006D /* AppIcon-ink@2x.png */; };
+		E100000000000000A000005E /* AppIcon-ink@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = E100000000000000A000006E /* AppIcon-ink@3x.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -48,6 +63,21 @@
 		E100000000000000A0000040 /* InterVariable.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = InterVariable.ttf; sourceTree = "<group>"; };
 		E100000000000000A0000041 /* InterVariable-Italic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "InterVariable-Italic.ttf"; sourceTree = "<group>"; };
 		E100000000000000A0000042 /* FontHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FontHelper.swift; sourceTree = "<group>"; };
+		E100000000000000A0000060 /* CaveatBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = CaveatBold.ttf; sourceTree = "<group>"; };
+		E100000000000000A0000061 /* AppIcon-purple@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon-purple@2x.png"; sourceTree = "<group>"; };
+		E100000000000000A0000062 /* AppIcon-purple@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon-purple@3x.png"; sourceTree = "<group>"; };
+		E100000000000000A0000063 /* AppIcon-rose@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon-rose@2x.png"; sourceTree = "<group>"; };
+		E100000000000000A0000064 /* AppIcon-rose@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon-rose@3x.png"; sourceTree = "<group>"; };
+		E100000000000000A0000065 /* AppIcon-sky@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon-sky@2x.png"; sourceTree = "<group>"; };
+		E100000000000000A0000066 /* AppIcon-sky@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon-sky@3x.png"; sourceTree = "<group>"; };
+		E100000000000000A0000067 /* AppIcon-mint@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon-mint@2x.png"; sourceTree = "<group>"; };
+		E100000000000000A0000068 /* AppIcon-mint@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon-mint@3x.png"; sourceTree = "<group>"; };
+		E100000000000000A0000069 /* AppIcon-gold@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon-gold@2x.png"; sourceTree = "<group>"; };
+		E100000000000000A000006A /* AppIcon-gold@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon-gold@3x.png"; sourceTree = "<group>"; };
+		E100000000000000A000006B /* AppIcon-orange@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon-orange@2x.png"; sourceTree = "<group>"; };
+		E100000000000000A000006C /* AppIcon-orange@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon-orange@3x.png"; sourceTree = "<group>"; };
+		E100000000000000A000006D /* AppIcon-ink@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon-ink@2x.png"; sourceTree = "<group>"; };
+		E100000000000000A000006E /* AppIcon-ink@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon-ink@3x.png"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -88,6 +118,7 @@
 				E100000000000000A0000012 /* ViewModels */,
 				E100000000000000A0000013 /* Views */,
 				E100000000000000A0000044 /* Fonts */,
+				E100000000000000A0000045 /* Icons */,
 				E100000000000000A0000025 /* Info.plist */,
 				E100000000000000A0000026 /* Assets.xcassets */,
 			);
@@ -99,8 +130,30 @@
 			children = (
 				E100000000000000A0000040 /* InterVariable.ttf */,
 				E100000000000000A0000041 /* InterVariable-Italic.ttf */,
+				E100000000000000A0000060 /* CaveatBold.ttf */,
 			);
 			path = "Resources/Fonts";
+			sourceTree = "<group>";
+		};
+		E100000000000000A0000045 /* Icons */ = {
+			isa = PBXGroup;
+			children = (
+				E100000000000000A0000061 /* AppIcon-purple@2x.png */,
+				E100000000000000A0000062 /* AppIcon-purple@3x.png */,
+				E100000000000000A0000063 /* AppIcon-rose@2x.png */,
+				E100000000000000A0000064 /* AppIcon-rose@3x.png */,
+				E100000000000000A0000065 /* AppIcon-sky@2x.png */,
+				E100000000000000A0000066 /* AppIcon-sky@3x.png */,
+				E100000000000000A0000067 /* AppIcon-mint@2x.png */,
+				E100000000000000A0000068 /* AppIcon-mint@3x.png */,
+				E100000000000000A0000069 /* AppIcon-gold@2x.png */,
+				E100000000000000A000006A /* AppIcon-gold@3x.png */,
+				E100000000000000A000006B /* AppIcon-orange@2x.png */,
+				E100000000000000A000006C /* AppIcon-orange@3x.png */,
+				E100000000000000A000006D /* AppIcon-ink@2x.png */,
+				E100000000000000A000006E /* AppIcon-ink@3x.png */,
+			);
+			path = "Resources/Icons";
 			sourceTree = "<group>";
 		};
 		E100000000000000A0000010 /* Models */ = {
@@ -228,6 +281,21 @@
 				E100000000000000A0000035 /* Assets.xcassets in Resources */,
 				E100000000000000A0000036 /* InterVariable.ttf in Resources */,
 				E100000000000000A0000037 /* InterVariable-Italic.ttf in Resources */,
+				E100000000000000A0000050 /* CaveatBold.ttf in Resources */,
+				E100000000000000A0000051 /* AppIcon-purple@2x.png in Resources */,
+				E100000000000000A0000052 /* AppIcon-purple@3x.png in Resources */,
+				E100000000000000A0000053 /* AppIcon-rose@2x.png in Resources */,
+				E100000000000000A0000054 /* AppIcon-rose@3x.png in Resources */,
+				E100000000000000A0000055 /* AppIcon-sky@2x.png in Resources */,
+				E100000000000000A0000056 /* AppIcon-sky@3x.png in Resources */,
+				E100000000000000A0000057 /* AppIcon-mint@2x.png in Resources */,
+				E100000000000000A0000058 /* AppIcon-mint@3x.png in Resources */,
+				E100000000000000A0000059 /* AppIcon-gold@2x.png in Resources */,
+				E100000000000000A000005A /* AppIcon-gold@3x.png in Resources */,
+				E100000000000000A000005B /* AppIcon-orange@2x.png in Resources */,
+				E100000000000000A000005C /* AppIcon-orange@3x.png in Resources */,
+				E100000000000000A000005D /* AppIcon-ink@2x.png in Resources */,
+				E100000000000000A000005E /* AppIcon-ink@3x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
