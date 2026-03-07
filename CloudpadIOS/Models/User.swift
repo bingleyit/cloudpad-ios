@@ -22,6 +22,42 @@ struct User: Codable {
     var location: String
     var timezone: String
 
+    enum CodingKeys: String, CodingKey {
+        case id, email, name, displayName, theme, mood, bg, avatar
+        case colOpacity, profileImage, tickerPrefs, workspaceName
+        case fontPref, padOrder, handle, padMeta, plan, betaMode
+        case location, timezone
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        // id may come as Int or String from the server
+        if let intId = try? c.decode(Int.self, forKey: .id) {
+            id = String(intId)
+        } else {
+            id = try c.decode(String.self, forKey: .id)
+        }
+        email         = try c.decode(String.self, forKey: .email)
+        name          = (try? c.decode(String.self, forKey: .name)) ?? ""
+        displayName   = (try? c.decode(String.self, forKey: .displayName)) ?? ""
+        theme         = (try? c.decode(String.self, forKey: .theme)) ?? "dusk"
+        mood          = (try? c.decode(String.self, forKey: .mood)) ?? "dusk"
+        bg            = (try? c.decode(String.self, forKey: .bg)) ?? ""
+        avatar        = (try? c.decode(String.self, forKey: .avatar)) ?? "🌸"
+        colOpacity    = (try? c.decode(Double.self, forKey: .colOpacity)) ?? 0.92
+        profileImage  = (try? c.decode(String.self, forKey: .profileImage)) ?? ""
+        tickerPrefs   = (try? c.decode(String.self, forKey: .tickerPrefs)) ?? ""
+        workspaceName = (try? c.decode(String.self, forKey: .workspaceName)) ?? ""
+        fontPref      = (try? c.decode(String.self, forKey: .fontPref)) ?? ""
+        padOrder      = (try? c.decode(String.self, forKey: .padOrder)) ?? ""
+        handle        = (try? c.decode(String.self, forKey: .handle)) ?? ""
+        padMeta       = (try? c.decode(String.self, forKey: .padMeta)) ?? ""
+        plan          = (try? c.decode(String.self, forKey: .plan)) ?? "free"
+        betaMode      = (try? c.decode(Bool.self, forKey: .betaMode)) ?? false
+        location      = (try? c.decode(String.self, forKey: .location)) ?? ""
+        timezone      = (try? c.decode(String.self, forKey: .timezone)) ?? ""
+    }
+
     init(
         id: String = "", email: String = "", name: String = "",
         displayName: String = "",
