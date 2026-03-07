@@ -11,7 +11,7 @@ struct PadContentView: View {
     @State private var shareURL: String?
     @State private var showShareSheet = false
 
-    var tasks: [Task] { notesVM.tasks(for: padKey) }
+    var tasks: [TaskItem] { notesVM.tasks(for: padKey) }
     var note: Note? { notesVM.notesByKey[padKey] }
 
     var body: some View {
@@ -19,11 +19,12 @@ struct PadContentView: View {
             Color.white.ignoresSafeArea()
 
             if tasks.isEmpty {
-                EmptyPadView()
+                EmptyPadView(padKey: padKey)
             } else {
                 List {
                     // Section header (LISTS mode only – date header is in DaysSubHeader)
-                    if mode == .lists, let padLabel = Config.specialPads.first(where: { $0.key == padKey })?.label {
+                    let allPads = Config.specialPads + Config.extendedPads
+                    if mode == .lists, let padLabel = allPads.first(where: { $0.key == padKey })?.label {
                         Text(padLabel.uppercased())
                             .font(.inter(14, weight: .bold))
                             .foregroundColor(Color(hex: "#1a1714"))
@@ -39,7 +40,7 @@ struct PadContentView: View {
                                 .listRowInsets(.init(top: 12, leading: 20, bottom: 4, trailing: 20))
                                 .listRowSeparator(.hidden)
                         } else {
-                            PadTaskRow(task: task) {
+                            PadTaskRow(task: task, useMonospace: padKey == "codes") {
                                 guard let token = appState.token else { return }
                                 notesVM.toggleTask(padKey: padKey, index: idx, token: token)
                             }
@@ -106,15 +107,50 @@ struct PadContentView: View {
 // MARK: – Empty state
 
 struct EmptyPadView: View {
+    var padKey: String = ""
+
+    private var icon: String {
+        switch padKey {
+        case "travel":   return "airplane"
+        case "recipes":  return "fork.knife"
+        case "codes":    return "curlybraces"
+        case "projects": return "folder"
+        case "notes":    return "note.text"
+        default:         return "checkmark.square"
+        }
+    }
+
+    private var title: String {
+        switch padKey {
+        case "travel":   return "No travel plans yet"
+        case "recipes":  return "No recipes yet"
+        case "codes":    return "No snippets yet"
+        case "projects": return "No projects yet"
+        case "notes":    return "No notes yet"
+        default:         return "No tasks yet"
+        }
+    }
+
+    private var subtitle: String {
+        switch padKey {
+        case "travel":   return "Tap + to add a destination or trip"
+        case "recipes":  return "Tap + to add a recipe or ingredient list"
+        case "codes":    return "Tap + to add a code snippet"
+        case "projects": return "Tap + to add a project or milestone"
+        case "notes":    return "Tap + to jot down a note"
+        default:         return "Tap + to add your first task"
+        }
+    }
+
     var body: some View {
         VStack(spacing: 10) {
-            Image(systemName: "checkmark.square")
+            Image(systemName: icon)
                 .font(.inter(40))
                 .foregroundColor(Color(hex: "#e8e4de"))
-            Text("No tasks yet")
+            Text(title)
                 .font(.inter(13))
                 .foregroundColor(Color(hex: "#9a9490"))
-            Text("Tap + to add your first task")
+            Text(subtitle)
                 .font(.inter(11))
                 .foregroundColor(Color(hex: "#c4bfb8"))
         }
@@ -125,7 +161,8 @@ struct EmptyPadView: View {
 // MARK: – Task row (square checkbox to match web)
 
 struct PadTaskRow: View {
-    let task: Task
+    let task: TaskItem
+    var useMonospace: Bool = false
     let onToggle: () -> Void
 
     var body: some View {
@@ -137,10 +174,19 @@ struct PadTaskRow: View {
             }
             .buttonStyle(.plain)
 
-            Text(task.text)
-                .strikethrough(task.done, color: Color(hex: "#c4bfb8"))
-                .foregroundColor(task.done ? Color(hex: "#c4bfb8") : Color(hex: "#1a1714"))
-                .frame(maxWidth: .infinity, alignment: .leading)
+            if useMonospace {
+                Text(task.text)
+                    .font(.system(size: 13, design: .monospaced))
+                    .strikethrough(task.done, color: Color(hex: "#c4bfb8"))
+                    .foregroundColor(task.done ? Color(hex: "#c4bfb8") : Color(hex: "#1a1714"))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            } else {
+                Text(task.text)
+                    .font(.inter(15))
+                    .strikethrough(task.done, color: Color(hex: "#c4bfb8"))
+                    .foregroundColor(task.done ? Color(hex: "#c4bfb8") : Color(hex: "#1a1714"))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
         }
         .padding(.vertical, 13)
     }

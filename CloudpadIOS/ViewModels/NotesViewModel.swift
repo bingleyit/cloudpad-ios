@@ -21,7 +21,7 @@ final class NotesViewModel: ObservableObject {
         isLoading = false
     }
 
-    func tasks(for padKey: String) -> [Task] {
+    func tasks(for padKey: String) -> [TaskItem] {
         notesByKey[padKey]?.tasks ?? []
     }
 
@@ -31,9 +31,9 @@ final class NotesViewModel: ObservableObject {
         var list = tasks(for: padKey)
         if trimmed.hasPrefix("---") {
             let label = String(trimmed.dropFirst(3)).trimmingCharacters(in: .whitespaces)
-            list.append(Task(text: label.isEmpty ? "—" : label, type: "divider"))
+            list.append(TaskItem(text: label.isEmpty ? "—" : label, type: "divider"))
         } else {
-            list.append(Task(text: trimmed))
+            list.append(TaskItem(text: trimmed))
         }
         persist(padKey: padKey, tasks: list, token: token)
     }
@@ -59,7 +59,7 @@ final class NotesViewModel: ObservableObject {
     }
 
     // Immediately update local state and schedule a debounced network save
-    private func persist(padKey: String, tasks: [Task], token: String) {
+    private func persist(padKey: String, tasks: [TaskItem], token: String) {
         let body = tasks.jsonString
         if var note = notesByKey[padKey] {
             note.body = body

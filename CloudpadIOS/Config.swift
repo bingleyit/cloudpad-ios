@@ -4,13 +4,23 @@ enum Config {
     // Your Railway URL — copy from Railway dashboard → your service → Settings → Domains
     static let baseURL = "https://cloudpad-production.up.railway.app"
 
-    // Special pads shown in the sidebar (matches web app PADS constant)
+    // Special pads shown in the horizontal tab bar
     static let specialPads: [(key: String, label: String, icon: String)] = [
         ("personal", "Personal",  "person"),
         ("someday",  "Someday",   "clock"),
         ("shopping", "Shopping",  "cart"),
         ("ideas",    "Ideas",     "lightbulb"),
         ("life",     "Life",      "heart"),
+        ("notes",    "Notes",     "note.text"),
+    ]
+
+    // Extended pads shown in the hamburger (≡) popout sheet
+    static let extendedPads: [(key: String, label: String, icon: String)] = [
+        ("notes",    "Notes",     "note.text"),
+        ("travel",   "Travel",    "airplane"),
+        ("recipes",  "Recipes",   "fork.knife"),
+        ("codes",    "Codes",     "curlybraces"),
+        ("projects", "Projects",  "folder"),
     ]
 
     // Default accent — matches the web app's CSS `--accent: #9361ff`

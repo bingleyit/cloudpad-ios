@@ -22,6 +22,14 @@ struct MainView: View {
         mode == .days ? dayKey(currentDate) : selectedPadKey
     }
 
+    /// True when the selected pad is in extendedPads but NOT in specialPads (e.g. travel, recipes, codes, projects)
+    var isExtendedOnlyPad: Bool {
+        guard mode == .lists else { return false }
+        let inExtended = Config.extendedPads.contains(where: { $0.key == selectedPadKey })
+        let inSpecial  = Config.specialPads.contains(where: { $0.key == selectedPadKey })
+        return inExtended && !inSpecial
+    }
+
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
             Color.white.ignoresSafeArea()
@@ -33,6 +41,13 @@ struct MainView: View {
                 if mode == .days {
                     DaysSubHeader(currentDate: $currentDate)
                         .environmentObject(appState)
+                } else if isExtendedOnlyPad,
+                          let extPad = Config.extendedPads.first(where: { $0.key == selectedPadKey }) {
+                    ExtendedPadSubHeader(pad: extPad) {
+                        selectedPadKey = Config.specialPads.first?.key ?? "personal"
+                    }
+                    .environmentObject(appState)
+                    .environmentObject(notesVM)
                 } else {
                     ListsTabBar(selectedPadKey: $selectedPadKey)
                         .environmentObject(appState)
@@ -58,6 +73,18 @@ struct MainView: View {
                                         let delta = dx < 0 ? 1 : -1
                                         currentDate = Calendar.current.date(
                                             byAdding: .day, value: delta, to: currentDate)!
+                                    } else if isExtendedOnlyPad {
+                                        // Swipe between extended pads
+                                        let pads = Config.extendedPads
+                                        if let idx = pads.firstIndex(where: { $0.key == selectedPadKey }) {
+                                            let next = dx < 0 ? idx + 1 : idx - 1
+                                            if pads.indices.contains(next) {
+                                                selectedPadKey = pads[next].key
+                                            } else if dx > 0 {
+                                                // Swipe right from first extended pad → back to special pads
+                                                selectedPadKey = Config.specialPads.first?.key ?? "personal"
+                                            }
+                                        }
                                     } else {
                                         let pads = Config.specialPads
                                         if let idx = pads.firstIndex(where: { $0.key == selectedPadKey }) {
@@ -311,6 +338,67 @@ struct PadTabButton: View {
     }
 }
 
+// MARK: – Extended pad sub-header (travel, recipes, codes, projects)
+
+struct ExtendedPadSubHeader: View {
+    @EnvironmentObject var appState: AppState
+    @EnvironmentObject var notesVM: NotesViewModel
+    let pad: (key: String, label: String, icon: String)
+    let onBack: () -> Void
+
+    var body: some View {
+        HStack(spacing: 0) {
+            // ← back to Lists
+            Button(action: onBack) {
+                HStack(spacing: 4) {
+                    Image(systemName: "chevron.left")
+                        .font(.inter(13, weight: .semibold))
+                    Text("LISTS")
+                        .font(.inter(12, weight: .semibold))
+                }
+                .foregroundColor(Color(hex: "#9a9490"))
+            }
+
+            Spacer()
+
+            // Pad icon + name + task count badge
+            HStack(spacing: 8) {
+                Image(systemName: pad.icon)
+                    .font(.inter(15, weight: .medium))
+                    .foregroundColor(appState.accentColor)
+                Text(pad.label.uppercased())
+                    .font(.inter(14, weight: .bold))
+                    .foregroundColor(Color(hex: "#1a1714"))
+                let count = notesVM.tasks(for: pad.key).filter { !$0.isDivider && !$0.done }.count
+                if count > 0 {
+                    Text("\(count)")
+                        .font(.inter(10, weight: .bold))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(appState.accentColor)
+                        .clipShape(Capsule())
+                }
+            }
+
+            Spacer()
+
+            // Balance spacer (invisible)
+            HStack(spacing: 4) {
+                Image(systemName: "chevron.left")
+                    .font(.inter(13, weight: .semibold))
+                Text("LISTS")
+                    .font(.inter(12, weight: .semibold))
+            }
+            .opacity(0)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 11)
+        .frame(height: 46)
+        .background(Color.white)
+    }
+}
+
 // MARK: – Bottom DAYS / LISTS toggle
 
 struct BottomModeToggle: View {
@@ -389,8 +477,9 @@ struct PadsGridSheet: View {
             .padding(.top, 20)
             .padding(.bottom, 24)
 
-            LazyVGrid(columns: columns, spacing: 20) {
-                ForEach(Config.specialPads, id: \.key) { pad in
+            // 3-column grid of the extended pads
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 16), count: 3), spacing: 20) {
+                ForEach(Config.extendedPads, id: \.key) { pad in
                     let isSelected = selectedPadKey == pad.key && mode == .lists
                     PadGridCell(pad: pad, isSelected: isSelected) {
                         selectedPadKey = pad.key
@@ -405,7 +494,7 @@ struct PadsGridSheet: View {
             Spacer()
         }
         .background(Color.white)
-        .presentationDetents([.medium])
+        .presentationDetents([.height(280)])
         .presentationDragIndicator(.hidden)
     }
 }
