@@ -25,17 +25,38 @@ final class NotesViewModel: ObservableObject {
         notesByKey[padKey]?.tasks ?? []
     }
 
-    func addTask(padKey: String, text: String, token: String) {
+    func addTask(padKey: String, text: String, type: QuickAddType = .task, token: String) {
         let trimmed = text.trimmingCharacters(in: .whitespaces)
         guard !trimmed.isEmpty else { return }
         var list = tasks(for: padKey)
-        if trimmed.hasPrefix("---") {
-            let label = String(trimmed.dropFirst(3)).trimmingCharacters(in: .whitespaces)
-            list.append(TaskItem(text: label.isEmpty ? "—" : label, type: "divider"))
-        } else {
+
+        // Map QuickAddType → TaskItem storage type
+        switch type {
+        case .section:
+            // Section creates a divider row
+            list.append(TaskItem(text: trimmed, type: "divider"))
+        case .snap, .task:
+            // Plain task item
             list.append(TaskItem(text: trimmed))
+        case .meal:
+            list.append(TaskItem(text: trimmed, type: "meal"))
+        case .reminder:
+            list.append(TaskItem(text: trimmed, type: "reminder"))
+        case .event:
+            list.append(TaskItem(text: trimmed, type: "event"))
+        case .note:
+            list.append(TaskItem(text: trimmed, type: "note"))
+        case .link:
+            list.append(TaskItem(text: trimmed, type: "link"))
         }
+
         persist(padKey: padKey, tasks: list, token: token)
+    }
+
+    /// Fetch a single pad's data — called when switching pads to ensure freshness
+    func loadPad(padKey: String, token: String) async {
+        guard let note = try? await APIService.shared.fetchNote(padKey: padKey, token: token) else { return }
+        notesByKey[padKey] = note
     }
 
     func toggleTask(padKey: String, index: Int, token: String) {

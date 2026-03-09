@@ -91,7 +91,7 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		E100000000000000A0000002 /* MainGroup */ = {
+		E100000000000000A0000002 = {
 			isa = PBXGroup;
 			children = (
 				E100000000000000A000000F /* CloudpadIOS */,
@@ -117,43 +117,12 @@
 				E100000000000000A0000011 /* Services */,
 				E100000000000000A0000012 /* ViewModels */,
 				E100000000000000A0000013 /* Views */,
-				E100000000000000A0000044 /* Fonts */,
-				E100000000000000A0000045 /* Icons */,
+				E100000000000000A0000044 /* Resources/Fonts */,
+				E100000000000000A0000045 /* Resources/Icons */,
 				E100000000000000A0000025 /* Info.plist */,
 				E100000000000000A0000026 /* Assets.xcassets */,
 			);
 			path = CloudpadIOS;
-			sourceTree = "<group>";
-		};
-		E100000000000000A0000044 /* Fonts */ = {
-			isa = PBXGroup;
-			children = (
-				E100000000000000A0000040 /* InterVariable.ttf */,
-				E100000000000000A0000041 /* InterVariable-Italic.ttf */,
-				E100000000000000A0000060 /* CaveatBold.ttf */,
-			);
-			path = "Resources/Fonts";
-			sourceTree = "<group>";
-		};
-		E100000000000000A0000045 /* Icons */ = {
-			isa = PBXGroup;
-			children = (
-				E100000000000000A0000061 /* AppIcon-purple@2x.png */,
-				E100000000000000A0000062 /* AppIcon-purple@3x.png */,
-				E100000000000000A0000063 /* AppIcon-rose@2x.png */,
-				E100000000000000A0000064 /* AppIcon-rose@3x.png */,
-				E100000000000000A0000065 /* AppIcon-sky@2x.png */,
-				E100000000000000A0000066 /* AppIcon-sky@3x.png */,
-				E100000000000000A0000067 /* AppIcon-mint@2x.png */,
-				E100000000000000A0000068 /* AppIcon-mint@3x.png */,
-				E100000000000000A0000069 /* AppIcon-gold@2x.png */,
-				E100000000000000A000006A /* AppIcon-gold@3x.png */,
-				E100000000000000A000006B /* AppIcon-orange@2x.png */,
-				E100000000000000A000006C /* AppIcon-orange@3x.png */,
-				E100000000000000A000006D /* AppIcon-ink@2x.png */,
-				E100000000000000A000006E /* AppIcon-ink@3x.png */,
-			);
-			path = "Resources/Icons";
 			sourceTree = "<group>";
 		};
 		E100000000000000A0000010 /* Models */ = {
@@ -218,6 +187,37 @@
 				E100000000000000A0000024 /* ThemePickerView.swift */,
 			);
 			path = Settings;
+			sourceTree = "<group>";
+		};
+		E100000000000000A0000044 /* Resources/Fonts */ = {
+			isa = PBXGroup;
+			children = (
+				E100000000000000A0000040 /* InterVariable.ttf */,
+				E100000000000000A0000041 /* InterVariable-Italic.ttf */,
+				E100000000000000A0000060 /* CaveatBold.ttf */,
+			);
+			path = Resources/Fonts;
+			sourceTree = "<group>";
+		};
+		E100000000000000A0000045 /* Resources/Icons */ = {
+			isa = PBXGroup;
+			children = (
+				E100000000000000A0000061 /* AppIcon-purple@2x.png */,
+				E100000000000000A0000062 /* AppIcon-purple@3x.png */,
+				E100000000000000A0000063 /* AppIcon-rose@2x.png */,
+				E100000000000000A0000064 /* AppIcon-rose@3x.png */,
+				E100000000000000A0000065 /* AppIcon-sky@2x.png */,
+				E100000000000000A0000066 /* AppIcon-sky@3x.png */,
+				E100000000000000A0000067 /* AppIcon-mint@2x.png */,
+				E100000000000000A0000068 /* AppIcon-mint@3x.png */,
+				E100000000000000A0000069 /* AppIcon-gold@2x.png */,
+				E100000000000000A000006A /* AppIcon-gold@3x.png */,
+				E100000000000000A000006B /* AppIcon-orange@2x.png */,
+				E100000000000000A000006C /* AppIcon-orange@3x.png */,
+				E100000000000000A000006D /* AppIcon-ink@2x.png */,
+				E100000000000000A000006E /* AppIcon-ink@3x.png */,
+			);
+			path = Resources/Icons;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -447,7 +447,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = MMU6Z8Y5EW;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = CloudpadIOS/Info.plist;
@@ -457,7 +457,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.cloudpad.ios";
+				PRODUCT_BUNDLE_IDENTIFIER = com.cloudpad.ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -472,7 +472,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = MMU6Z8Y5EW;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = CloudpadIOS/Info.plist;
@@ -482,7 +482,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.cloudpad.ios";
+				PRODUCT_BUNDLE_IDENTIFIER = com.cloudpad.ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -512,7 +512,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
 	};
 	rootObject = E100000000000000A0000001 /* Project object */;
 }
