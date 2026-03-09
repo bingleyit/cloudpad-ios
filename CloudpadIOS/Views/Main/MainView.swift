@@ -1,4 +1,5 @@
 import SwiftUI
+import LocalAuthentication
 
 // MARK: – Mode
 
@@ -17,6 +18,7 @@ struct MainView: View {
     @State private var showPadsSheet = false
     @State private var showQuickAdd = false
     @State private var showSettings = false
+    @State private var codesUnlocked = false
 
     var activePadKey: String {
         mode == .days ? dayKey(currentDate) : selectedPadKey
@@ -56,11 +58,18 @@ struct MainView: View {
 
                 Divider().foregroundColor(Color(hex: "#e8e4de"))
 
+                // Codes pad gate: biometric/passcode required
+                if activePadKey == "codes" && !codesUnlocked {
+                    CodesPadGate(onUnlock: { codesUnlocked = true })
+                        .environmentObject(appState)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else {
                 PadContentView(padKey: activePadKey, mode: mode)
                     .environmentObject(appState)
                     .environmentObject(notesVM)
                     .id(activePadKey)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
+                }
                     // ── Swipe left/right to navigate ──────────────────
                     .gesture(
                         DragGesture(minimumDistance: 40, coordinateSpace: .local)
@@ -137,6 +146,15 @@ struct MainView: View {
         .onChange(of: scenePhase) { phase in
             guard phase == .active else { return }
             Task { await appState.syncFromServer() }
+            // Re-lock codes when app goes to background
+            if phase == .background { codesUnlocked = false }
+        }
+        // Refresh individual pad data when switching pads
+        .onChange(of: selectedPadKey) { newKey in
+            guard let token = appState.token else { return }
+            Task { await notesVM.loadPad(padKey: newKey, token: token) }
+            // Re-lock codes whenever we leave it (navigation away)
+            if newKey != "codes" { codesUnlocked = false }
         }
     }
 
@@ -167,10 +185,13 @@ struct AppHeader: View {
 
             Spacer()
 
-            // "cloudpad" cursive wordmark — Caveat matches the web app's branding
+            // "cloudpad" cursive wordmark — Caveat-Bold matches the web app's branding
+            // Extra padding(.top, 6) compensates for Caveat's tall ascenders
             Text("cloudpad")
-                .font(.caveat(30, weight: .bold))
+                .font(.caveat(32, weight: .bold))
                 .foregroundColor(.white)
+                .padding(.top, 6)
+                .fixedSize()
 
             Spacer()
 
@@ -567,6 +588,19 @@ struct QuickAddSheet: View {
     private let row1: [QuickAddType] = [.task, .snap, .meal, .reminder, .event]
     private let row2: [QuickAddType] = [.note, .link, .section]
 
+    private var placeholder: String {
+        switch selectedType {
+        case .task:     return "What needs to get done?"
+        case .snap:     return "Quick capture..."
+        case .meal:     return "What's the meal?"
+        case .reminder: return "Remind me to..."
+        case .event:    return "Event name or details..."
+        case .note:     return "Write a note..."
+        case .link:     return "Paste a URL or link..."
+        case .section:  return "Section heading..."
+        }
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             // Drag handle
@@ -595,12 +629,19 @@ struct QuickAddSheet: View {
             }
             .padding(.horizontal, 20)
             .padding(.top, 20)
-            .padding(.bottom, 14)
+            .padding(.bottom, 12)
+
+            // ── Type chips — row 1 ───────────────────────────────────
+            chipRow(row1)
+            Spacer().frame(height: 8)
+            chipRow(row2)
+
+            Spacer().frame(height: 14)
 
             // ── Text input with accent underline ─────────────────────
             ZStack(alignment: .topLeading) {
                 if taskText.isEmpty {
-                    Text("What needs to get done? (try 'buy milk tomorrow' or\n'meeting next friday')")
+                    Text(placeholder)
                         .font(.inter(17))
                         .foregroundColor(Color(hex: "#c4bfb8"))
                         .padding(.horizontal, 20)
@@ -608,11 +649,50 @@ struct QuickAddSheet: View {
                         .allowsHitTesting(false)
                 }
                 TextField("", text: $taskText, axis: .vertical)
-                    .font(.inter(17))
+                    .font(selectedType == .link ? .inter(15) : .inter(17))
                     .foregroundColor(Color(hex: "#1a1714"))
+                    .keyboardType(selectedType == .link ? .URL : .default)
+                    .textContentType(selectedType == .link ? .URL : .none)
                     .focused($focused)
                     .padding(.horizontal, 20)
-                    .frame(minHeight: 52, alignment: .top)
+                    .frame(minHeight: 48, alignment: .top)
+                    // Date picker + Add Task in keyboard toolbar (avoids double-animation)
+                    .toolbar {
+                        ToolbarItemGroup(placement: .keyboard) {
+                            Menu {
+                                ForEach(dateOptions(), id: \.date) { opt in
+                                    Button(opt.label) { selectedDate = opt.date }
+                                }
+                            } label: {
+                                HStack(spacing: 4) {
+                                    Image(systemName: "calendar")
+                                        .font(.inter(14))
+                                    Text(dateMenuLabel(selectedDate))
+                                        .font(.inter(13))
+                                }
+                                .foregroundColor(Color(hex: "#9a9490"))
+                            }
+
+                            Spacer()
+
+                            Button {
+                                addItem()
+                            } label: {
+                                Text(selectedType == .snap ? "Snap" : selectedType == .section ? "Add Section" : "Add")
+                                    .font(.inter(14, weight: .bold))
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 14)
+                                    .padding(.vertical, 7)
+                                    .background(
+                                        taskText.trimmingCharacters(in: .whitespaces).isEmpty
+                                            ? appState.accentColor.opacity(0.4)
+                                            : appState.accentColor
+                                    )
+                                    .clipShape(Capsule())
+                            }
+                            .disabled(taskText.trimmingCharacters(in: .whitespaces).isEmpty)
+                        }
+                    }
             }
 
             Rectangle()
@@ -620,105 +700,83 @@ struct QuickAddSheet: View {
                 .foregroundColor(appState.accentColor)
                 .padding(.horizontal, 20)
 
-            Spacer().frame(height: 20)
-
-            // ── Type chips — row 1 ───────────────────────────────────
-            chipRow(row1)
-            Spacer().frame(height: 10)
-            chipRow(row2)
-
-            Spacer().frame(height: 18)
-
-            // ── Date picker + Add Task button ────────────────────────
-            HStack(spacing: 10) {
-                // Date dropdown styled like the web's <select>
-                Menu {
-                    ForEach(dateOptions(), id: \.date) { opt in
-                        Button(opt.label) { selectedDate = opt.date }
-                    }
-                } label: {
-                    HStack(spacing: 6) {
-                        Text(dateMenuLabel(selectedDate))
-                            .font(.inter(14))
-                            .foregroundColor(Color(hex: "#1a1714"))
-                        Spacer()
-                        Image(systemName: "chevron.up.chevron.down")
-                            .font(.inter(11))
-                            .foregroundColor(Color(hex: "#9a9490"))
-                    }
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 11)
-                    .background(Color.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(Color(hex: "#e8e4de"), lineWidth: 1)
-                    )
-                }
-                .frame(maxWidth: .infinity)
-
-                Button {
-                    let trimmed = taskText.trimmingCharacters(in: .whitespaces)
-                    guard let token = appState.token, !trimmed.isEmpty else { return }
-                    notesVM.addTask(padKey: padKey, text: trimmed, token: token)
-                    isPresented = false
-                } label: {
-                    Text("Add Task")
-                        .font(.inter(15, weight: .bold))
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 12)
-                        .background(appState.accentColor)
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                }
-                .disabled(taskText.trimmingCharacters(in: .whitespaces).isEmpty)
-            }
-            .padding(.horizontal, 20)
-
             // ── Tip text ─────────────────────────────────────────────
-            Text("tip: type \"tomorrow\", \"next monday\", or a date to auto-schedule")
+            Text(tipText)
                 .font(.inter(11))
                 .foregroundColor(Color(hex: "#9a9490"))
                 .padding(.horizontal, 20)
-                .padding(.top, 8)
+                .padding(.top, 10)
 
             Spacer()
         }
         .background(Color.white)
-        .presentationDetents([.height(420), .large])
-        .onAppear { focused = true }
+        // Fixed height avoids the two-step animation; Add button is in keyboard toolbar
+        .presentationDetents([.height(360), .large])
+        // Keyboard opens within the same animation frame as the sheet
+        .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                focused = true
+            }
+        }
+        // snap: auto-submit when user finishes typing (presses return)
+        .onChange(of: taskText) { text in
+            if selectedType == .snap && text.last == "\n" {
+                taskText = String(text.dropLast())
+                addItem()
+            }
+        }
+    }
+
+    private var tipText: String {
+        switch selectedType {
+        case .section: return "Creates a section divider in your list"
+        case .snap:    return "Snap captures instantly — just type and press return"
+        case .link:    return "Paste a full URL to save a link"
+        default:       return "Tip: use --- prefix to add a divider section"
+        }
+    }
+
+    private func addItem() {
+        let trimmed = taskText.trimmingCharacters(in: .whitespaces)
+        guard let token = appState.token, !trimmed.isEmpty else { return }
+        notesVM.addTask(padKey: padKey, text: trimmed, type: selectedType, token: token)
+        isPresented = false
     }
 
     // MARK: – Chip row helper
 
     private func chipRow(_ types: [QuickAddType]) -> some View {
-        HStack(spacing: 8) {
-            ForEach(types, id: \.rawValue) { type in
-                let selected = selectedType == type
-                Button { selectedType = type } label: {
-                    HStack(spacing: type.emoji.isEmpty ? 0 : 4) {
-                        if !type.emoji.isEmpty {
-                            Text(type.emoji).font(.inter(13))
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(types, id: \.rawValue) { type in
+                    let selected = selectedType == type
+                    Button {
+                        withAnimation(.easeInOut(duration: 0.15)) { selectedType = type }
+                    } label: {
+                        HStack(spacing: type.emoji.isEmpty ? 0 : 4) {
+                            if !type.emoji.isEmpty {
+                                Text(type.emoji).font(.inter(13))
+                            }
+                            Text(type.label)
+                                .font(.inter(13, weight: selected ? .semibold : .regular))
                         }
-                        Text(type.label)
-                            .font(.inter(13, weight: selected ? .semibold : .regular))
-                    }
-                    .foregroundColor(selected ? .white : Color(hex: "#1a1714"))
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 7)
-                    .background(selected ? appState.accentColor : Color.white)
-                    .clipShape(Capsule())
-                    .overlay(
-                        Capsule().stroke(
-                            selected ? appState.accentColor : Color(hex: "#e8e4de"),
-                            lineWidth: 1
+                        .foregroundColor(selected ? .white : Color(hex: "#1a1714"))
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 7)
+                        .background(selected ? appState.accentColor : Color.white)
+                        .clipShape(Capsule())
+                        .overlay(
+                            Capsule().stroke(
+                                selected ? appState.accentColor : Color(hex: "#e8e4de"),
+                                lineWidth: 1
+                            )
                         )
-                    )
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
             }
+            .padding(.horizontal, 20)
         }
-        .padding(.horizontal, 20)
     }
 
     // MARK: – Date helpers
@@ -742,8 +800,118 @@ struct QuickAddSheet: View {
     private func dateMenuLabel(_ date: Date) -> String {
         let cal = Calendar.current
         let fmt = DateFormatter(); fmt.dateFormat = "EEEE"
-        if cal.isDateInToday(date)    { return "Today · \(fmt.string(from: date))" }
-        if cal.isDateInTomorrow(date) { return "Tomorrow · \(fmt.string(from: date))" }
+        if cal.isDateInToday(date)    { return "Today" }
+        if cal.isDateInTomorrow(date) { return "Tomorrow" }
         return fmt.string(from: date)
+    }
+}
+
+// MARK: – Codes pad biometric gate
+
+struct CodesPadGate: View {
+    @EnvironmentObject var appState: AppState
+    let onUnlock: () -> Void
+    @State private var authError: String?
+    @State private var isAuthenticating = false
+
+    var body: some View {
+        VStack(spacing: 24) {
+            Spacer()
+
+            ZStack {
+                Circle()
+                    .fill(appState.accentColor.opacity(0.12))
+                    .frame(width: 100, height: 100)
+                Image(systemName: "lock.fill")
+                    .font(.inter(38, weight: .medium))
+                    .foregroundColor(appState.accentColor)
+            }
+
+            VStack(spacing: 8) {
+                Text("Codes Locked")
+                    .font(.inter(22, weight: .bold))
+                    .foregroundColor(Color(hex: "#1a1714"))
+                Text("Authenticate to view your saved codes")
+                    .font(.inter(14))
+                    .foregroundColor(Color(hex: "#9a9490"))
+                    .multilineTextAlignment(.center)
+            }
+
+            if let error = authError {
+                Text(error)
+                    .font(.inter(12))
+                    .foregroundColor(.red)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 32)
+            }
+
+            Button {
+                Task { await authenticate() }
+            } label: {
+                HStack(spacing: 8) {
+                    Image(systemName: biometricIcon)
+                        .font(.inter(16, weight: .medium))
+                    Text(biometricLabel)
+                        .font(.inter(16, weight: .semibold))
+                }
+                .foregroundColor(.white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 16)
+                .background(isAuthenticating ? appState.accentColor.opacity(0.5) : appState.accentColor)
+                .clipShape(RoundedRectangle(cornerRadius: 14))
+            }
+            .padding(.horizontal, 40)
+            .disabled(isAuthenticating)
+
+            Spacer()
+        }
+        .background(Color.white)
+        .task { await authenticate() }
+    }
+
+    private var biometricIcon: String {
+        let ctx = LAContext()
+        var err: NSError?
+        guard ctx.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &err) else {
+            return "lock.open.fill"
+        }
+        return ctx.biometryType == .faceID ? "faceid" : "touchid"
+    }
+
+    private var biometricLabel: String {
+        let ctx = LAContext()
+        var err: NSError?
+        guard ctx.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &err) else {
+            return "Unlock with Passcode"
+        }
+        return ctx.biometryType == .faceID ? "Unlock with Face ID" : "Unlock with Touch ID"
+    }
+
+    private func authenticate() async {
+        isAuthenticating = true
+        authError = nil
+        let context = LAContext()
+        var error: NSError?
+        // .deviceOwnerAuthentication falls back to passcode if no biometrics
+        guard context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) else {
+            // Simulator or device with no auth configured — just unlock
+            onUnlock()
+            isAuthenticating = false
+            return
+        }
+        do {
+            let success = try await context.evaluatePolicy(
+                .deviceOwnerAuthentication,
+                localizedReason: "Unlock your Codes pad"
+            )
+            if success { onUnlock() }
+        } catch {
+            let laError = error as? LAError
+            // User tapped cancel — show a prompt to try again
+            if laError?.code != .userCancel {
+                authError = error.localizedDescription
+            }
+        }
+        isAuthenticating = false
     }
 }

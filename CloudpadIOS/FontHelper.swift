@@ -1,10 +1,13 @@
 import SwiftUI
 
 // MARK: – Caveat font (used for the "cloudpad" wordmark, matching the web)
+//
+// CaveatBold.ttf PostScript name is "Caveat-Bold" — must reference it directly,
+// not via .custom("Caveat").weight(.bold) which doesn't load the bundled file.
 
 extension Font {
     static func caveat(_ size: CGFloat, weight: Font.Weight = .regular) -> Font {
-        .custom("Caveat", size: size).weight(weight)
+        .custom("Caveat-Bold", size: size)
     }
 }
 
